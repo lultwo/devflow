@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# Farben definieren
+GREEN='\033[0;32m'
+CYAN='\033[1;36m'
+BLUE='\033[0;34m'
+WHITE="\033[1;37m"
+NC='\033[0m' # No Color
+
+clear
+
+print_section() {
+  local title="$1"
+  if [ -z "$first_section" ]; then
+    echo -e "${BLUE}┌--------------------------------------------------------------${NC}"
+    echo -e "${BLUE}├           ${CYAN}System Informations${NC}                                ${NC}"
+    first_section="printed"
+  else
+    echo -e "${BLUE}│${NC}"
+  fi
+  echo -e "${BLUE}├--------------------------------------------------------------${NC}"
+  echo -e "${BLUE}├           ${CYAN}${title}${NC}                                ${NC}"
+}
+
+print_info() {
+  local label="$1"
+  local value="$2"
+  echo -e "${BLUE}│ ${CYAN}${label}${WHITE}  :  ${CYAN}${value}${NC}"
+}
+
+# Konfigurierbare Reihenfolge und Texte
+sections=("CPU-Informations" "RAM-Informations" "IP-Adresses" "Disk-Informations" "OperationSystem Informations" "Package Informations")
+cpu_info=$(grep "model name" /proc/cpuinfo | uniq)
+cpu_cores=$(grep -c "processor" /proc/cpuinfo)
+cpu_threads=$(grep -c "siblings" /proc/cpuinfo)
+ram_info=$(free -h | awk '/^Mem:/ {print $2, $3, $4}')
+swap_info=$(free -h | awk '/^Swap:/ {print $2, $3}')
+ip4_address=$(hostname -I | awk '{print $1}')
+ip6_address=$(hostname -I | awk '{print $2}')
+disk_space=$(df -h / | awk '/^\/dev/ {print $2}')
+os_info=$(lsb_release -d | awk -F ":\t" '{print $2}')
+package_count=$(dpkg -l | grep -c '^ii')
+
+for section in "${sections[@]}"; do
+  print_section "${section}"
+
+  case "${section}" in
+    "CPU-Informations")
+      print_info "CPU Model            " "${cpu_info}"
+      print_info "CPU Cores            " "${cpu_cores}"
+      print_info "CPU Threads          " "${cpu_threads}"
+      ;;
+    "RAM-Informations")
+      print_info "RAM (Total/Used/Free)" "${ram_info}"
+      print_info "Swap (Total/Used)    " "${swap_info}"
+      ;;
+    "IP-Adresses")
+      print_info "IP4 Address           " "${ip4_address}"
+      print_info "IP6 Address           " "${ip6_address}"
+      ;;
+    "Disk-Informations")
+      print_info "Disk Space           " "${disk_space}"
+      ;;
+    "OperationSystem Informations")
+      print_info "Operating System     " "${os_info}"
+      ;;
+    "Package Informations")
+      print_info "Installed Packages   " "${package_count}"
+      ;;
+  esac
+done
+
+echo -e "${BLUE}└--------------------------------------------------------------${NC}"

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Farben definieren
+GREEN='\033[0;32m'
+CYAN='\033[1;36m'
+BLUE='\033[0;34m'
+WHITE="\033[1;37m"
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}┌--------------------------------------------------------------${NC}"
+echo -e "${BLUE}├           ${CYAN}Package Information${BLUE}                                ${NC}"
+echo -e "${BLUE}├--------------------------------------------------------------${NC}"
+
+# Paketname
+package_name=$(dpkg-query --show --showformat='${Package}\n' lultwopi 2>/dev/null || echo "x")
+echo -e "${BLUE}├ ${CYAN}Package Name${WHITE}        : $package_name"
+
+# Paketversion
+package_version=$(dpkg-query --show --showformat='${Version}\n' lultwopi 2>/dev/null || echo "x")
+echo -e "${BLUE}├ ${CYAN}Package Version${WHITE}     : $package_version"
+
+# Paketentwickler
+package_maintainer=$(dpkg-query --show --showformat='${Maintainer}\n' lultwopi 2>/dev/null || echo "x")
+echo -e "${BLUE}├ ${CYAN}Package Maintainer${WHITE}  : $package_maintainer"
+
+# Paketbeschreibung
+package_description=$(dpkg-query --show --showformat='${Description}\n' lultwopi 2>/dev/null || echo "x")
+echo -e "${BLUE}├ ${CYAN}Package Description${WHITE} : $package_description"
+
+echo -e "${BLUE}└--------------------------------------------------------------${NC}"

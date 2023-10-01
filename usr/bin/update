@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Farben definieren
+GREEN='\033[0;32m'
+CYAN='\033[1;36m'
+BLUE='\033[0;34m'
+WHITE="\033[1;37m"
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Funktion zum Anzeigen einer Abschnittsüberschrift
+clear
+
+print_section() {
+  local title="$1"
+  echo -e "${BLUE}┌--------------------------------------------------------------${NC}"
+  echo -e "${BLUE}├           ${CYAN}${title}${NC}                                ${NC}"
+  echo -e "${BLUE}│${NC}" # Zeile hinzugefügt
+}
+
+# Funktion zum Anzeigen von Informationen
+print_info() {
+  local label="$1"
+  local value="$2"
+  echo -e "${BLUE}├ ${CYAN}${label}${WHITE}  :  ${CYAN}${value}${NC}"
+}
+
+# Führe den Befehl dpkg-deb aus und unterdrücke die Ausgabe
+print_section "Package Installation"
+package_name="lultwopi"
+old_version=$(dpkg -l | grep "$package_name" | awk '{print $3}')
+dpkg-deb --build /home/lultwo/lultwopi/ > /dev/null 2>&1
+sudo dpkg -i /home/lultwo/lultwopi.deb > /dev/null 2>&1
+new_version=$(dpkg -l | grep "$package_name" | awk '{print $3}')
+
+# Nachrichten nach der Installation senden
+print_info "Package Name         " "$package_name"
+print_info "Old Version          " "$old_version"
+print_info "New Version          " "$new_version"
+
+# Überprüfe die Installation
+if [ $? -eq 0 ]; then
+  print_info "Installation Status  " "${GREEN}Successful${NC}"
+else
+  print_info "Installation Status  " "${RED}Failed${NC}"
+fi
+
+# Abschnittsabschluss
+echo -e "${BLUE}└--------------------------------------------------------------${NC}"
